@@ -66,7 +66,7 @@ function OrderCard({ order }) {
 
       {/* Itens do pedido */}
       {expanded && items.length > 0 && (
-        <div className="border-t border-gray-100 bg-gray-50 divide-y divide-gray-100">
+        <div className="grid grid-cols-2 gap-2 border-t border-gray-100 bg-gray-50 p-2 sm:block sm:p-0 sm:divide-y sm:divide-gray-100">
           {items.map((rawItem, idx) => {
             const item = {
               ...rawItem,
@@ -78,7 +78,28 @@ function OrderCard({ order }) {
               IMAGEM: apiField(rawItem, 'IMAGEM'),
             };
             return (
-              <div key={idx} className="flex items-center gap-4 px-5 py-3">
+              <div key={idx} className="sm:contents">
+                <div className="sm:hidden">
+                  <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+                    <div className="flex gap-3">
+                      <ProductImage item={item} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold leading-5 text-gray-900 line-clamp-2">
+                          {apiField(item, 'DESCRPROD') || `Produto ${apiField(item, 'CODPROD') || '—'}`}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-400">Cód. {apiField(item, 'CODPROD') || '—'}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-end justify-between border-t border-gray-100 pt-2">
+                      <p className="text-xs text-gray-500">Qtd. <strong className="text-gray-700">{apiField(item, 'QTVEN') || 1}</strong>{apiField(item, 'UNIDADE') && ` ${apiField(item, 'UNIDADE')}`}</p>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-gray-800">{formatCurrency(decimalValue(apiField(item, 'PVENDA')) * Number(apiField(item, 'QTVEN') || 1))}</p>
+                        <p className="text-xs text-gray-400">{formatCurrency(apiField(item, 'PVENDA'))}/un</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="hidden sm:flex items-center gap-4 px-5 py-3">
                 {/* Imagem do produto (via iSA se disponível) */}
                 <ProductImage item={item} />
                 <div className="flex-1 min-w-0">
@@ -97,6 +118,7 @@ function OrderCard({ order }) {
                   <p className="text-xs text-gray-400">
                     {formatCurrency(apiField(item, 'PVENDA'))}/un
                   </p>
+                </div>
                 </div>
               </div>
             );

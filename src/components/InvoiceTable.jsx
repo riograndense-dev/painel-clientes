@@ -121,7 +121,35 @@ export default function InvoiceTable({ faturas = [], type, loading, emptyText })
   const total = faturas.reduce((s, f) => s + decimalValue(apiField(f, 'VALOR')), 0);
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+    <>
+      <div className="sm:hidden space-y-3">
+        {faturas.map((f, i) => (
+          <article key={`${apiField(f, 'DUPLIC')}-${apiField(f, 'PREST')}-${i}`}
+            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-mono text-sm font-bold text-gray-900">
+                  {apiField(f, 'DUPLIC') ?? '—'}{apiField(f, 'PREST') ? ` · ${apiField(f, 'PREST')}` : ''}
+                </p>
+                <p className="mt-1 text-xs text-gray-500">Vence em {formatDate(apiField(f, 'DTVENC'))}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold whitespace-nowrap" style={{ color: type === 'vencida' ? 'var(--color-pampa-600)' : 'var(--color-grafite)' }}>
+                  {formatCurrency(apiField(f, 'VALOR'))}
+                </p>
+                <div className="mt-1"><StatusBadge type={type} /></div>
+              </div>
+            </div>
+            <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 border-t border-gray-100 pt-3 text-xs">
+              <div><dt className="text-gray-400">Emissão</dt><dd className="mt-0.5 text-gray-700">{formatDate(apiField(f, 'DTEMISSAO'))}</dd></div>
+              {type === 'paga' && <div><dt className="text-gray-400">Baixa</dt><dd className="mt-0.5 text-gray-700">{formatDate(apiField(f, 'DTBAIXA'))}</dd></div>}
+            </dl>
+            {apiField(f, 'CODBARRA') && <div className="mt-3 border-t border-gray-100 pt-3"><CopyBarcode code={apiField(f, 'CODBARRA')} /></div>}
+          </article>
+        ))}
+        <p className="px-1 text-right text-sm font-bold" style={{ color: 'var(--color-grafite)' }}>Total: {formatCurrency(total)}</p>
+      </div>
+      <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
       <table className="min-w-full text-sm text-gray-700">
         <thead className="text-xs uppercase tracking-wider"
           style={{ background: 'var(--color-grafite)', color: 'rgb(180 200 170)' }}>
@@ -185,6 +213,7 @@ export default function InvoiceTable({ faturas = [], type, loading, emptyText })
           </tr>
         </tfoot>
       </table>
-    </div>
+      </div>
+    </>
   );
 }

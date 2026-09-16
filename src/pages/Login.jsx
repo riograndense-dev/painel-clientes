@@ -64,7 +64,7 @@ export default function Login() {
               className="h-14 object-contain drop-shadow"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
-            <p className="text-sm text-center" style={{ color: 'var(--color-grafite)' }}>
+            <p className="text-sm text-center" style={{ color: 'var(--color-marfim)' }}>
               Portal do Cliente
             </p>
           </div>

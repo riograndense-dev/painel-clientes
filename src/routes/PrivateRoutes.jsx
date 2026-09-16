@@ -1,8 +1,28 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ShieldAlert } from 'lucide-react';
+
+function MaintenanceScreen() {
+  return (
+    <main className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--color-marfim)' }}>
+      <section className="w-full max-w-md rounded-2xl bg-white border border-gray-100 shadow-lg p-8 text-center">
+        <div className="mx-auto mb-5 w-14 h-14 rounded-2xl flex items-center justify-center"
+          style={{ background: 'var(--color-marfim-soft)', color: 'var(--color-campeiro-700)' }}>
+          <ShieldAlert size={28} />
+        </div>
+        <h1 className="text-xl font-bold" style={{ color: 'var(--color-grafite)', fontFamily: 'var(--font-display)' }}>
+          Em manutenção no momento
+        </h1>
+        <p className="mt-3 text-sm leading-6" style={{ color: 'var(--color-grafite-soft)' }}>
+          Este acesso está temporariamente indisponível. Tente novamente mais tarde.
+        </p>
+      </section>
+    </main>
+  );
+}
 
 export default function PrivateRoute() {
-  const { token, loading } = useAuth();
+  const { token, client, loading } = useAuth();
 
   if (loading) {
     return (
@@ -15,6 +35,8 @@ export default function PrivateRoute() {
     );
   }
 
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
-}
+  if (!token) return <Navigate to="/login" replace />;
 
+  const allowed = client?.permissao === true || client?.['permissão'] === true;
+  return allowed ? <Outlet /> : <MaintenanceScreen />;
+}
