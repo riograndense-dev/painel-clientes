@@ -1,25 +1,32 @@
 import { useEffect, useState } from 'react';
 import { useApi } from '../hooks/useApi';
 import { ShoppingBag, ChevronDown, ChevronUp, Package, Loader2, CalendarDays } from 'lucide-react';
+import { apiField, collectionFromResponse, decimalValue } from '../utils/portalData';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function formatCurrency(val) {
-  const num = parseFloat(val) || 0;
+  const num = decimalValue(val);
   return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
-  const d = new Date(dateStr + 'T00:00:00');
+  const value = String(dateStr).slice(0, 10);
+  if (value.includes('/')) return value;
+  const d = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 function OrderCard({ order }) {
   const [expanded, setExpanded] = useState(false);
 
-  const items = order.itens || order.items || [];
-  const total = items.reduce((s, i) => s + (parseFloat(i.PVENDA || i.preco || 0) * (i.QTVEN || i.quantidade || 1)), 0);
+  const items = collectionFromResponse({ items: order.itens || order.items || order.ITENS || order.ITEMS });
+  const total = items.reduce(
+    (sum, item) => sum + decimalValue(apiField(item, 'PVENDA')) * Number(apiField(item, 'QTVEN') || 1),
+    0,
+  );
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition">
@@ -33,22 +40,22 @@ function OrderCard({ order }) {
             <ShoppingBag size={18} className="text-red-600" />
           </div>
           <div className="text-left">
-            <p className="text-sm font-semibold text-gray-900">Pedido #{order.NUMPED || order.numped}</p>
+            <p className="text-sm font-semibold text-gray-900">Pedido #{apiField(order, 'NUMPED') || '—'}</p>
             <div className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
               <CalendarDays size={12} />
-              {formatDate(order.DTEMISSAO || order.data)}
-              {order.CODFILIAL && (
+              {formatDate(apiField(order, 'DTEMISSAO') || order.data)}
+              {apiField(order, 'CODFILIAL') && (
                 <span className="ml-2 text-gray-300">|</span>
               )}
-              {order.CODFILIAL && (
-                <span>Filial {order.CODFILIAL}</span>
+              {apiField(order, 'CODFILIAL') && (
+                <span>Filial {apiField(order, 'CODFILIAL')}</span>
               )}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <p className="text-sm font-bold text-gray-900">{formatCurrency(total || order.PVENDA)}</p>
+            <p className="text-sm font-bold text-gray-900">{formatCurrency(total || apiField(order, 'VALOR') || order.PVENDA)}</p>
             <p className="text-xs text-gray-400">{items.length} {items.length === 1 ? 'item' : 'itens'}</p>
           </div>
           <div className="text-gray-400">
@@ -60,30 +67,35 @@ function OrderCard({ order }) {
       {/* Itens do pedido */}
       {expanded && items.length > 0 && (
         <div className="border-t border-gray-100 bg-gray-50 divide-y divide-gray-100">
-          {items.map((item, idx) => {
-            const imgUrl = item.CODPROD
-              ? `${API_URL}/catalog?busca=${item.CODPROD}&page_size=1`
-              : null;
-
+          {items.map((rawItem, idx) => {
+            const item = {
+              ...rawItem,
+              CODPROD: apiField(rawItem, 'CODPROD'),
+              DESCRPROD: apiField(rawItem, 'DESCRPROD'),
+              QTVEN: apiField(rawItem, 'QTVEN'),
+              PVENDA: apiField(rawItem, 'PVENDA'),
+              UNIDADE: apiField(rawItem, 'UNIDADE'),
+              IMAGEM: apiField(rawItem, 'IMAGEM'),
+            };
             return (
               <div key={idx} className="flex items-center gap-4 px-5 py-3">
                 {/* Imagem do produto (via iSA se disponível) */}
                 <ProductImage item={item} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {item.DESCRPROD || item.descricao || `Produto ${item.CODPROD}`}
+                    {apiField(item, 'DESCRPROD') || `Produto ${apiField(item, 'CODPROD') || '—'}`}
                   </p>
                   <p className="text-xs text-gray-400">
                     Cód: {item.CODPROD} — Qtd: {item.QTVEN || item.quantidade || 1}
-                    {item.UNIDADE && ` ${item.UNIDADE}`}
+                    {apiField(item, 'UNIDADE') && ` ${apiField(item, 'UNIDADE')}`}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold text-gray-800">
-                    {formatCurrency((parseFloat(item.PVENDA || 0)) * (item.QTVEN || 1))}
+                    {formatCurrency(decimalValue(apiField(item, 'PVENDA')) * Number(apiField(item, 'QTVEN') || 1))}
                   </p>
                   <p className="text-xs text-gray-400">
-                    {formatCurrency(item.PVENDA || 0)}/un
+                    {formatCurrency(apiField(item, 'PVENDA'))}/un
                   </p>
                 </div>
               </div>
@@ -103,7 +115,7 @@ function OrderCard({ order }) {
 
 // Componente de imagem com fallback para ícone
 function ProductImage({ item }) {
-  const [imgSrc, setImgSrc] = useState(item.IMAGEM || item.imagem || null);
+  const [imgSrc] = useState(apiField(item, 'IMAGEM') || null);
   const [error, setError] = useState(false);
 
   if (error || !imgSrc) {
@@ -117,7 +129,7 @@ function ProductImage({ item }) {
   return (
     <img
       src={imgSrc}
-      alt={item.DESCRPROD || 'Produto'}
+      alt={apiField(item, 'DESCRPROD') || 'Produto'}
       className="w-12 h-12 rounded-lg object-cover bg-gray-100 shrink-0"
       onError={() => setError(true)}
     />
@@ -136,7 +148,7 @@ export default function OrderHistory() {
     setLoading(true);
     try {
       const data = await apiFetch(`/portal/me/pedidos?limite=${LIMIT}&pagina=${p}`);
-      const list = Array.isArray(data) ? data : (data?.items || data?.pedidos || []);
+      const list = collectionFromResponse(data);
       if (p === 1) {
         setOrders(list);
       } else {
@@ -178,7 +190,7 @@ export default function OrderHistory() {
   return (
     <div className="space-y-3">
       {orders.map((order, i) => (
-        <OrderCard key={order.NUMPED || order.numped || i} order={order} />
+        <OrderCard key={apiField(order, 'NUMPED') || i} order={order} />
       ))}
 
       {hasMore && (
@@ -196,4 +208,3 @@ export default function OrderHistory() {
     </div>
   );
 }
-

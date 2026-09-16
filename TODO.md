@@ -1,13 +1,12 @@
 # A fazer:
 
-- [x] Página de login obrigatória para visualização do conteúdo
-- [x] Dashboard do cliente:
-  - legível e facil de navegar
-  - navegação mobile intuitiva
-  - apresentar tabelas de faturas pagas, vencidas e a vencer
-  - barra de notificações superior para mostrar faturas que vencem na próxima semana ou que já venceram
-  - histórico de compras, preferencialmente com a imagem dos produtos
-  - seção "Meu Vendedor", que apresenta dados do vendedor responsável
+- [x] Implementar cores semelhantes ao site principal (./src/styles/site.css)
+- [x] Retirar barra de rolagem inferior do menu lateral
+- [x] *IMPORTANTE:* Verificar e corrigir os dados recebidos do json que não está sendo exibido corretamente nas tabelas e telas
+- [x] Adicionar cobertura para um campo nas faturas que será adicionado futuramente às prestações(CODBARRA)
+- [x] Coloque um botão que copia esse código e abra o site da fazenda para verificar a nota (https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=)
+- [x] Priorize um pouco mais a navegação mobile
+- Mantenha o design e estilo utilizado
 
 ## Notas: 
 API já documentada em docs/openapi.json; Basear-se nela para buscar os dados (principalmente nos endpoints com o prefixo portal)

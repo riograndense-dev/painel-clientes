@@ -1,17 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useApi } from '../hooks/useApi';
 import { AlertTriangle, Clock, X } from 'lucide-react';
+import { apiField, collectionFromResponse, decimalValue } from '../utils/portalData';
 
 function isSameOrBefore7Days(dateStr) {
+  if (!dateStr) return false;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const venc = new Date(dateStr + 'T00:00:00');
+  const value = String(dateStr).slice(0, 10);
+  const isoDate = value.includes('/') ? value.split('/').reverse().join('-') : value;
+  const venc = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(venc.getTime())) return false;
   const diff = (venc - today) / (1000 * 60 * 60 * 24);
   return diff >= 0 && diff <= 7;
 }
 
 function formatCurrency(val) {
-  const num = parseFloat(val) || 0;
+  const num = decimalValue(val);
   return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
@@ -28,11 +33,10 @@ export default function NotificationBar() {
           apiFetch('/portal/me/faturas/vencidas'),
           apiFetch('/portal/me/faturas/a-vencer'),
         ]);
-        setVencidas(v || []);
-        // Apenas as que vencem nos próximos 7 dias
-        setAVencer((a || []).filter((f) => isSameOrBefore7Days(f.DTVENC)));
+        setVencidas(collectionFromResponse(v));
+        setAVencer(collectionFromResponse(a).filter((f) => isSameOrBefore7Days(apiField(f, 'DTVENC'))));
       } catch {
-        // silencioso — não interrompe o dashboard
+        // silencioso
       }
     }
     load();
@@ -40,16 +44,16 @@ export default function NotificationBar() {
 
   if (dismissed || (vencidas.length === 0 && aVencer.length === 0)) return null;
 
-  const totalVencidas = vencidas.reduce((s, f) => s + (parseFloat(f.VALOR) || 0), 0);
-  const totalAVencer = aVencer.reduce((s, f) => s + (parseFloat(f.VALOR) || 0), 0);
+  const totalVencidas = vencidas.reduce((s, f) => s + decimalValue(apiField(f, 'VALOR')), 0);
+  const totalAVencer = aVencer.reduce((s, f) => s + decimalValue(apiField(f, 'VALOR')), 0);
 
   return (
     <div className="relative">
-      {/* Vencidas */}
       {vencidas.length > 0 && (
-        <div className="flex items-center gap-3 bg-red-600 text-white px-4 py-3 text-sm">
-          <AlertTriangle size={16} className="shrink-0" />
-          <span>
+        <div className="flex items-center gap-3 px-4 py-3 text-sm text-white"
+          style={{ background: 'var(--color-pampa-600)' }}>
+          <AlertTriangle size={15} className="shrink-0" />
+          <span className="pr-8">
             <strong>{vencidas.length} fatura{vencidas.length > 1 ? 's' : ''} vencida{vencidas.length > 1 ? 's' : ''}</strong>
             {' '}— Total em aberto:{' '}
             <strong>{formatCurrency(totalVencidas)}</strong>
@@ -57,27 +61,24 @@ export default function NotificationBar() {
         </div>
       )}
 
-      {/* A vencer em 7 dias */}
       {aVencer.length > 0 && (
-        <div className="flex items-center gap-3 bg-amber-500 text-white px-4 py-3 text-sm">
-          <Clock size={16} className="shrink-0" />
-          <span>
+        <div className="flex items-center gap-3 px-4 py-3 text-sm text-white bg-amber-500">
+          <Clock size={15} className="shrink-0" />
+          <span className="pr-8">
             <strong>{aVencer.length} fatura{aVencer.length > 1 ? 's' : ''}</strong>
-            {' '}vencem nos próximos 7 dias —{' '}
+            {' '}vence{aVencer.length === 1 ? '' : 'm'} nos próximos 7 dias —{' '}
             <strong>{formatCurrency(totalAVencer)}</strong>
           </span>
         </div>
       )}
 
-      {/* Fechar */}
       <button
         onClick={() => setDismissed(true)}
-        className="absolute right-3 top-3 text-white/70 hover:text-white transition"
+        className="absolute right-3 top-3 text-white/70 hover:text-white transition-colors"
         aria-label="Fechar notificações"
       >
-        <X size={16} />
+        <X size={15} />
       </button>
     </div>
   );
 }
-
