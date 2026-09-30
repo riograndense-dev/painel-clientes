@@ -6,6 +6,7 @@
 - [x] Adicionar cobertura para um campo nas faturas que será adicionado futuramente às prestações(CODBARRA)
 - [x] Coloque um botão que copia esse código e abra o site da fazenda para verificar a nota (https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=)
 - [x] Priorize um pouco mais a navegação mobile
+- [x] Troca de senha do cliente (`PUT /portal/clientes/senha` logado e `PUT /portal/clientes/senha/recuperar` sem login)
 - Mantenha o design e estilo utilizado
 
 ## Notas: 

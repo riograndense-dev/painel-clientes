@@ -6,6 +6,7 @@ import NotificationBar from '../components/NotificationBar';
 import InvoiceTable from '../components/InvoiceTable';
 import OrderHistory from '../components/OrderHistory';
 import SellerCard from '../components/SellerCard';
+import ChangePassword from '../components/ChangePassword';
 import { apiField, collectionFromResponse, decimalValue } from '../utils/portalData';
 import {
   CheckCircle,
@@ -13,6 +14,7 @@ import {
   Clock,
   ShoppingBag,
   User,
+  KeyRound,
   TrendingDown,
   TrendingUp,
   Wallet,
@@ -217,6 +219,13 @@ export default function Dashboard() {
             <section>
               <SectionTitle icon={User} label="Meu Vendedor" color="gray" />
               <SellerCard />
+            </section>
+          )}
+
+          {activeSection === 'senha' && (
+            <section>
+              <SectionTitle icon={KeyRound} label="Alterar Senha" color="gray" />
+              <ChangePassword />
             </section>
           )}
         </main>

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import PrivateRoute from './PrivateRoutes';
 import Login from '../pages/Login';
+import RecoverPassword from '../pages/RecoverPassword';
 import Dashboard from '../pages/Dashboard';
 import NotFound from '../pages/NotFound';
 
@@ -19,6 +20,7 @@ export default function AppRoutes() {
         <Routes>
           <Route path="/" element={<HomeRedirect />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/recuperar-senha" element={<RecoverPassword />} />
 
           {/* Rotas protegidas */}
           <Route element={<PrivateRoute />}>

@@ -8,6 +8,7 @@ import {
   Clock,
   ShoppingBag,
   User,
+  KeyRound,
   LogOut,
   Menu,
   X,
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { id: 'a-vencer', label: 'A Vencer', icon: Clock },
   { id: 'pedidos', label: 'Pedidos', icon: ShoppingBag },
   { id: 'vendedor', label: 'Meu Vendedor', icon: User },
+  { id: 'senha', label: 'Alterar Senha', icon: KeyRound },
 ];
 
 export default function Navbar({ active, onNavigate }) {

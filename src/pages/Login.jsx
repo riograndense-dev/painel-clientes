@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { formatDoc } from '../utils/formatters';
 
 export default function Login() {
   const { login, authError, setAuthError } = useAuth();
@@ -11,22 +12,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Formata CPF/CNPJ enquanto digita
-  function formatDoc(val) {
-    const digits = val.replace(/\D/g, '').slice(0, 14);
-    if (digits.length <= 11) {
-      return digits
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    }
-    return digits
-      .replace(/(\d{2})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d)/, '$1/$2')
-      .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
-  }
 
   function handleDocChange(e) {
     setAuthError(null);
@@ -106,10 +91,19 @@ export default function Login() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-1"
-                  style={{ color: 'var(--color-grafite)' }}>
-                  Senha
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label htmlFor="password" className="block text-sm font-medium"
+                    style={{ color: 'var(--color-grafite)' }}>
+                    Senha
+                  </label>
+                  <Link
+                    to="/recuperar-senha"
+                    className="text-xs font-medium hover:underline transition"
+                    style={{ color: 'var(--color-campeiro-700)' }}
+                  >
+                    Esqueci minha senha
+                  </Link>
+                </div>
                 <div className="relative">
                   <input
                     id="password"
