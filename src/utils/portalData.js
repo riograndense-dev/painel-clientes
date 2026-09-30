@@ -10,7 +10,11 @@ const FIELD_ALIASES = {
   DTEMISSAO: ['emissao', 'data_emissao', 'dataemissao', 'dt_emissao'],
   DTVENC: ['vencimento', 'data_vencimento', 'datavencimento', 'dt_vencimento', 'dt_venc'],
   DTBAIXA: ['baixa', 'data_baixa', 'databaixa', 'dt_baixa', 'data_pagamento'],
-  CODBARRA: ['codigo_barras', 'codigobarras', 'linha_digitavel', 'linhadigitavel'],
+  CODBARRA: ['codigo_barras', 'codigobarras', 'codigodebarras'],
+  // Linha digitável do boleto Sicredi — usada para gerar PDF via /boleto/sicredi
+  LINHADIG: ['linhadig', 'linha_digitavel', 'linhadigitavel', 'linhaDigitavel'],
+  // URL direta do PDF do boleto (quando a API já pre-gera)
+  BOLETO_URL: ['boleto_url', 'url_boleto', 'urlboleto', 'boletoUrl', 'BOLETO_URL'],
   CODUSUR: ['cod_vendedor', 'codvendedor', 'codigo_vendedor', 'codusu', 'vendedor_codigo'],
   NOME: ['nome_vendedor', 'nomevendedor', 'vendedor', 'usuario', 'nome_usuario'],
   FONE: ['telefone', 'fone_vendedor', 'celular', 'numero_telefone'],
